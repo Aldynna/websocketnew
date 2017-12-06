@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+   <script>
+       function dodajkorisnika() {
+           console.log('funkcija');
+           var nick = $("#nick").val();
+           var ps = $("#pass").val();
+           var psc = $("#pass2").val();
+           if (nick == '' || ps == '' || psc == '') {
+               alert("Please fill all fields...!!!!!!");
+           } else if ((ps.length) < 4) {
+               alert("Password should atleast 4 character in length...!!!!!!");
+           } else if (!(ps).match(psc)) {
+               alert("Your passwords don't match. Try again?");
+           } else {
+               $.ajax({
+                   method: "POST",
+                   url: "/dodajpl",
+                   data: {unm: nick,pas: ps},
+               }).done(function () {
+                   //console.log(data),
+
+                   //window.location.reload();
+                   alert("uspjesna registracija");
+                   window.location.assign('/igraci');
+               }).fail(function () {
+                   alert("pokusajte drugi username");
+
+               });
+           };
+
+
+
+       }
+   </script>
+
+</head>
+<body>
+
+
+
+<form action="/reg" method="get">
+    Unesite nick: <input type="text" name="nick" id="nick"><br>
+    Unesite pass: <input type="text" name="pass" id="pass"><br>
+    Ponovite pass: <input type="text" name="pass2" id="pass2"><br>
+    <input type="submit" value="Submit">
+</form>
+
+</body>
+</html>

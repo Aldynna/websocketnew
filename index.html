@@ -31,26 +31,66 @@
             socket.on('chat message', function(msg){
                 $('#messages').append($('<li>').text(msg));
             });
+
+           /* socket.on('konekcija', function(msg){
+                $('#messages').append($('<li>').text(msg));
+            });*/
         });
     </script>
     <script>
         var socket = io();
 
     </script>
-<script> function refresh() {
+    <script>
+        var crypto = require('crypto'),
+            algorithm = 'aes-256-ctr',
+            password = 'd6F3Efeq';
 
-    $('#ime').append($('<li>').text(document.cookies('user')));
+        function encrypt(text){
+            var cipher = crypto.createCipher(algorithm,password)
+            var crypted = cipher.update(text,'utf8','hex')
+            crypted += cipher.final('hex');
+            return crypted;
+        }
 
-}</script>
+        function decrypt(text){
+            var decipher = crypto.createDecipher(algorithm,password)
+            var dec = decipher.update(text,'hex','utf8')
+            dec += decipher.final('utf8');
+            return dec;
+        }
+    </script>
+<script>
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie = decodeURIComponent(document.cookie);
+        var ca = decodedCookie.split(';');
+        for(var i = 0; i <ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+               let nick=c.substring(name.length, c.length);
+                $('#ime').append($('<li>').text(nick));
+
+            }
+        }
+        return "";
+    }
+    $('#ime').append($('<li>').text(document.cookie.user));
+
+</script>
 
 </head>
-<body onload="refresh()">
-
+<body onload="getCookie('user')">
+<div id="history" style="overflow-y: scroll; height:500px;">
 <ul id="messages"></ul>
-<div id="ime"></div>
+</div>
+
 <form action="">
 
-    <input id="m" autocomplete="off" /><button>Send</button>
+    <input id="m" autocomplete="off" required/><button>Send</button>
 </form>
 </body>
 </html>
