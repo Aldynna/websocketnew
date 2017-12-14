@@ -1,19 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <link rel='stylesheet' href='/stylesheets/style.css' />
     <script src="/javascripts/stil.js"></script>
+    <script>
+    function provjera() {
+    console.log('ajax pocetak\n');
+
+   var user = $("#user").val();
+        var pass = $("#pass").val();
+
+console.log(user+pass);
+    $.ajax({
+    method: "get",
+    url: "/provjera",
+    data: {user:user,pass:pass},
+    })
+    .done(function (msg) {
+        $('#poruka').append($('<li>').text(msg.poruka+msg.token));
+
+       if(msg.token!=' ') {
+           document.cookie="user=" +user+";expire:"+ 360000 + Date.now()+";path=/c";
+           document.cookie="token=" +msg.token+";expire:"+ 360000 + Date.now()+";path=/d";
+console.log(document.cookie);
+           window.location.href = "/chat";
+       }
+    // x.innerHTML = msg.poruke;
+    console.log(msg.poruka);
+    console.log('ajax end\n');
+    // marker.setPosition(KK);
+    //  map.setCenter(KK);
+    //alert( "Data Saved: " + msg );
+    }).fail(function() {
+        alert( "error" );
+    });
+    }</script>
 </head>
 <body>
 
+<div id="poruka"></div>
 
 
-<form action="/login" method="get">
-    Username: <input type="text" name="user" required><br>
-    Password: <input type="password" name="pass" required><br>
-    <input type="submit" value="Submit">
-</form>
+    Username: <input type="text" name="user" id="user" required><br>
+    Password: <input type="password" name="pass" id="pass" required minlength="4" maxlength="10"><br>
+    <input type="button" value="Submit" onclick="provjera()">
+
+
 <form action="/register" method="get">
     <p><button class="btn btn-primary btn-lg" type="submit">Registruj se</button></p>
 </form>

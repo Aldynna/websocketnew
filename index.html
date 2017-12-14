@@ -31,7 +31,10 @@
             socket.on('chat message', function(msg){
                 $('#messages').append($('<li>').text(msg));
             });
-
+socket.on('delete',function (user) {
+    document.cookie=user+"=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/c";
+    document.cookie=token+"=;expires=Thu, 01 Jan 1970 00:00:01 GMT;path=/d";
+})
            /* socket.on('konekcija', function(msg){
                 $('#messages').append($('<li>').text(msg));
             });*/

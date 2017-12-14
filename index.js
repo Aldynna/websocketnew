@@ -18,7 +18,81 @@ app.use(bodyParser.urlencoded({ extended: false }));
 
 var korisnici=require('./korisnici.json');
 app.get('/', function(req, res){
+    console.log(req.cookies.user+req.cookies.token);
     res.sendFile(__dirname + '/prva.html');
+});
+
+app.get('/provjera',function(req,res){
+    let crypto=require('crypto');
+    let Buffer=require('buffer').Buffer;
+    let SECRET_KEY="nekikey";
+    let ENCODING='hex';
+    let pass=req.param('pass');
+    let user=req.param('user');
+
+console.log(user+pass);
+
+
+    function encrypt(text){
+        // var cipher = crypto.createCipher(algorithm,password)
+        let cipher = crypto.createCipher('des-ede3-cbc',SECRET_KEY);
+        let crypted = cipher.update(text,'utf8',ENCODING);
+        crypted += cipher.final(ENCODING);
+        return crypted;
+    }
+
+    function decrypt(text){
+        // var decipher = crypto.createDecipher(algorithm,password)
+        let decipher = crypto.createDecipher('des-ede3-cbc',SECRET_KEY);
+        let dec = decipher.update(text,ENCODING,'utf8')
+        dec += decipher.final('utf8');
+        return dec;
+    }
+
+    var pronasao=false;
+    var ima_korisnik=false;
+    var poruka;
+    var token=' ';
+    poruka="Korisnik ne postoji";
+    for(let i=0;i<4;i++)
+    {
+        //console.log('korisnici[i].name '+korisnici[i].name)
+        if(user===korisnici[i].name) {
+            //  res.cookie('user', user, {expire: new Date() + 9999});
+        poruka="Pogresan password";
+            //let ps=decrypt(korisnici[i].pass);
+            //console.log(ps);
+            if(pass===decrypt(korisnici[i].pass)) {
+                console.log("dekripcija "+korisnici[i].pass+" u "+decrypt(korisnici[i].pass));
+              // res.cookie('user', user, {expire: 360000 + Date.now()});
+                // res.cookie('user', user).send('cookie set');
+                //console.log('user: ', req.cookies.user);
+                poruka="Pronasli korisnika";
+            token=encrypt(user);
+            console.log('token '+token);
+                pronasao = true;
+
+            }
+            ima_korisnik=true;
+
+            break;
+            //  console.log(res);
+
+        }
+
+
+    };
+    /*if(ima_korisnik) {
+        //else res.send('Pogresni podaci');
+        //res.sendFile(__dirname + '/prva.html');
+        if(!pronasao)
+        {alert ("Pogresan password!");}}
+    else
+        alert("Pogresni podaci!");*/
+
+    res.send({poruka:poruka,token:token});
+
+
 });
 app.get('/reg', function(req, res){
     var nick=req.query.nick;
@@ -44,7 +118,7 @@ app.get('/reg', function(req, res){
     };
 });
 
-app.get('/login', function(req, res){
+/*app.get('/login', function(req, res){
 
     var user=req.query.user;
     var pass=req.query.pass;
@@ -59,7 +133,7 @@ app.get('/login', function(req, res){
         algorithm = 'aes-256-ctr',
         password = 'd6F3Efeq';*/
 
-    function encrypt(text){
+  /*  function encrypt(text){
        // var cipher = crypto.createCipher(algorithm,password)
         let cipher = crypto.createCipher('des-ede3-cbc',SECRET_KEY);
         let crypted = cipher.update(text,'utf8',ENCODING);
@@ -83,7 +157,7 @@ app.get('/login', function(req, res){
     console.log("crypto: "+pass+" u "+encrypt(pass));
     for(let i=0;i<4;i++)
     {
-        console.log('korisnici[i].name'+korisnici[i].name)
+       // console.log('korisnici[i].name '+korisnici[i].name)
     if(user===korisnici[i].name) {
       //  res.cookie('user', user, {expire: new Date() + 9999});
 
@@ -92,6 +166,7 @@ app.get('/login', function(req, res){
         if(pass===decrypt(korisnici[i].pass)) {
             console.log("dekripcija "+korisnici[i].pass+" u "+decrypt(korisnici[i].pass));
             res.cookie('user', user, {expire: 360000 + Date.now()});
+            console.log();
             // res.cookie('user', user).send('cookie set');
             console.log('user: ', req.cookies.user);
             res.sendFile(__dirname + '/index.html');
@@ -113,12 +188,19 @@ app.get('/login', function(req, res){
         else
         alert("Pogresni podaci!");
 
-});
+});*/
 
 app.get('/register', function(req, res, next) {
     res.sendFile(__dirname +'/register.html');
 });
-
+app.get('/chat', function(req, res, next) {
+   var beginuser = req.cookies.user;
+    var begintoken = req.cookies.token;
+    console.log('cookie '+req.cookies.user);
+    if(beginuser!== undefined&&begintoken!== undefined)
+        res.sendFile(__dirname +'/index.html');
+    else alert('Ne mozete pristupiti stranii, prvo se prijavite!');
+});
 
 
 app.get('/ref', function(req, res){
@@ -152,19 +234,27 @@ io.on('connection', function(socket){
         }
 
     io.emit('chat message', nick+' se pridruzio!');
+    io.emit('konekcija', nick+' se pridruzio!');
 
 // v.substring(v.indexOf('='));
-console.log(socket.request.headers.cookie);
+//console.log(socket.request.headers.cookie);
 console.log('nick:'+nick);
 
     socket.on('disconnect', function(){
+        //console.log(socket.headers);
+      //  socket.headers.cookie('user',' ', {expire:Date.now()-360000});
+socket.emit('delete','user');
+
         io.emit('chat message', nick+' se diskonetovao!');
-        console.log('user disconnected');
+
+      //  io.emit('diskonenekt', nick+' se diskonetovao!');
+        console.log(nick+ ' disconnected');
     });
     socket.on('chat message', function(msg){
     //  console.log(socket.cookie.user);
 
         io.emit('chat message', nick+':'+msg);
+
       //  console.log(user);
 //console.log(req.cookie.user);
 
