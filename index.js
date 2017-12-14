@@ -196,10 +196,11 @@ app.get('/register', function(req, res, next) {
 app.get('/chat', function(req, res, next) {
    var beginuser = req.cookies.user;
     var begintoken = req.cookies.token;
-    console.log('cookie '+req.cookies.user);
-    if(beginuser!== undefined&&begintoken!== undefined)
+    console.log(req.cookies);
+    console.log('cookie '+req.cookies.user+' token '+req.cookies.token);
+   if(beginuser!== undefined&&begintoken!== undefined)
         res.sendFile(__dirname +'/index.html');
-    else alert('Ne mozete pristupiti stranii, prvo se prijavite!');
+    else {alert('Ne mozete pristupiti stranii, prvo se prijavite!'); res.redirect('/');}
 });
 
 
@@ -264,6 +265,6 @@ socket.emit('delete','user');
 
 
 
-http.listen(4000, function(){
+http.listen(5000, function(){
     console.log('listening on *:4000');
 });

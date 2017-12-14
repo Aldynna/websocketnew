@@ -21,8 +21,10 @@ console.log(user+pass);
         $('#poruka').append($('<li>').text(msg.poruka+msg.token));
 
        if(msg.token!=' ') {
-           document.cookie="user=" +user+";expire:"+ 360000 + Date.now()+";path=/c";
-           document.cookie="token=" +msg.token+";expire:"+ 360000 + Date.now()+";path=/d";
+let token=msg.token;
+           console.log('fja'+token);
+           document.cookie="user=" +user;//+";expire:"+ 360000 + Date.now()+";path=/c";
+        document.cookie="token=" +token;//+"expire:"+ 360000 + Date.now()+";path=/c";
 console.log(document.cookie);
            window.location.href = "/chat";
        }
