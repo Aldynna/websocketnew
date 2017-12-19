@@ -10,11 +10,39 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 //var cookie=require('cookie');
 var alert=require('alert-node');
+var auth=require('./helpers/authorize');
+var path  = require('path');
+
 
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
+//midlwear izvrsava se redom,
 
+function authorize() {
+    return function (req,res,next) {
+
+        if(req.path=='/'){
+            /* var fullUrl = req.protocol + '://' + req.get('host');*/
+
+          //  console.log();
+            //console.log(url);
+
+            next();
+        } else if(req.path=='/chat'){
+         var beginuser = req.cookies.user;
+         var begintoken = req.cookies.token;
+         if(beginuser!== undefined&&begintoken!== undefined) next();
+         }
+        else {
+            res.send('ne moze');
+        }
+    }
+
+}
+
+//app.use(auth('user',['Aldina']));
+app.use(auth());
 
 var korisnici=require('./korisnici.json');
 app.get('/', function(req, res){
@@ -262,7 +290,23 @@ socket.emit('delete','user');
         console.log('message: ',nick+':'+msg);
     });
 });
+/*
+app.use(function(req, res, next) {
+    var err = new Error('Not Found');
+    err.status = 404;
+    next(err);
+});
 
+// error handler
+app.use(function(err, req, res, next) {
+    // set locals, only providing error in development
+    res.locals.message = err.message;
+    res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+    // render the error page
+    res.status(err.status || 500);
+    //res.render('error');
+});*/
 
 
 http.listen(5000, function(){
