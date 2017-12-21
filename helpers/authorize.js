@@ -1,8 +1,19 @@
 //function authorize(cookieName,users) {
-function authorize() {
+function authorize(javne) {
     return function (req,res,next) {
-
-        if(req.path=='/'){
+        var nasli=false;
+        if(req.cookies.token!==undefined) { console.log('if'); next();}
+        else{
+for(let i=0;i<javne.length;i++) {
+    if (req.path == javne[i]) {
+        console.log(javne[i]);
+        console.log(req.path);
+        next();
+        nasli=true;
+    }
+}
+     if(!nasli) res.redirect('/');}
+     /*  if(req.path=='/'){
             next();
         } else if(req.path=='/chat'){
          var beginuser = req.cookies.user;
@@ -13,7 +24,7 @@ function authorize() {
          }
         else {
             res.send('ne moze');
-        }
+        }*/
     }
 
 }

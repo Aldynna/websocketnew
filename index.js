@@ -42,7 +42,7 @@ function authorize() {
 }
 
 //app.use(auth('user',['Aldina']));
-app.use(auth());
+app.use(auth(['/']));
 
 var korisnici=require('./korisnici.json');
 app.get('/', function(req, res){
@@ -58,7 +58,7 @@ app.get('/provjera',function(req,res){
     let pass=req.param('pass');
     let user=req.param('user');
 
-console.log(user+pass);
+console.log('user '+user+' pass ' +pass);
 
 
     function encrypt(text){
@@ -222,13 +222,15 @@ app.get('/register', function(req, res, next) {
     res.sendFile(__dirname +'/register.html');
 });
 app.get('/chat', function(req, res, next) {
-   var beginuser = req.cookies.user;
+
+  /* var beginuser = req.cookies.user;
     var begintoken = req.cookies.token;
+    console.log('user '+beginuser+' token '+begintoken);
     console.log(req.cookies);
     console.log('cookie '+req.cookies.user+' token '+req.cookies.token);
-   if(beginuser!== undefined&&begintoken!== undefined)
+   if(beginuser!== undefined&&begintoken!== undefined)*/
         res.sendFile(__dirname +'/index.html');
-    else {alert('Ne mozete pristupiti stranii, prvo se prijavite!'); res.redirect('/');}
+   // else {alert('Ne mozete pristupiti stranici, prvo se prijavite!'); res.redirect('/');}
 });
 
 
@@ -271,7 +273,7 @@ console.log('nick:'+nick);
 
     socket.on('disconnect', function(){
         //console.log(socket.headers);
-      //  socket.headers.cookie('user',' ', {expire:Date.now()-360000});
+     // socket.headers.cookies('token',' ', {expire:Date.now()-360000});
 socket.emit('delete','user');
 
         io.emit('chat message', nick+' se diskonetovao!');
