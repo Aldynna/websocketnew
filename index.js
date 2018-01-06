@@ -5,6 +5,7 @@ var app = require('express')();
 
 var http = require('http').Server(app);
 
+
 var io = require('socket.io')(http);
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
@@ -12,6 +13,32 @@ var bodyParser = require('body-parser');
 var alert=require('alert-node');
 var auth=require('./helpers/authorize');
 var path  = require('path');
+
+const { Client } = require('pg');
+
+var config = {
+    user: 'postgres', //env var: PGUSER
+    database: 'chat', //env var: PGDATABASE
+    password:null, //env var: PGPASSWORD
+    host: 'localhost', // Server hosting the postgres database
+    port: 5433, //env var: PGPORT
+    max: 10, // max number of clients in the pool
+    idleTimeoutMillis: 30000, // how long a client is allowed to remain idle before being closed
+};
+/*const client = new Client({
+    user: 'postgres',
+    host: 'localhost',
+    database: 'chat',
+    port: 5433,
+});*/
+const client=new Client(config);
+client.connect();
+
+client.query('SELECT NOW()', (err, res) => {
+    console.log(err, res)
+
+});
+
 
 
 app.use(cookieParser());
@@ -47,11 +74,15 @@ app.use(auth(['/']));
 var korisnici=require('./korisnici.json');
 app.get('/', function(req, res){
     console.log(req.cookies.user+req.cookies.token);
+
     res.sendFile(__dirname + '/prva.html');
 });
 
 app.get('/provjera',function(req,res){
-    let crypto=require('crypto');
+
+
+
+        let crypto=require('crypto');
     let Buffer=require('buffer').Buffer;
     let SECRET_KEY="nekikey";
     let ENCODING='hex';
@@ -219,6 +250,17 @@ app.get('/reg', function(req, res){
 });*/
 
 app.get('/register', function(req, res, next) {
+  console.log('doslo');
+
+
+    client.query('INSERT INTO users (username,password,fullname) VALUES($1, $2,$3)',['Keno', 'password','Kenan Musinovic'],(err, res) => {
+        if (err) {
+            console.log(err.stack)
+        } else {
+            console.log(res.rows[0])
+        }
+    });
+
     res.sendFile(__dirname +'/register.html');
 });
 app.get('/chat', function(req, res, next) {
@@ -229,6 +271,16 @@ app.get('/chat', function(req, res, next) {
     console.log(req.cookies);
     console.log('cookie '+req.cookies.user+' token '+req.cookies.token);
    if(beginuser!== undefined&&begintoken!== undefined)*/
+    console.log('doslo insert');
+    // var client = new Client(config);
+
+    client.query('INSERT INTO users (username,password,fullname) VALUES($1, $2,$3)',['Keno2', 'password','Kenan Musinovic'],(err, res) => {
+        if (err) {
+            console.log(err.stack)
+        } else {
+            console.log(res.rows[0])
+        }
+    });
         res.sendFile(__dirname +'/index.html');
    // else {alert('Ne mozete pristupiti stranici, prvo se prijavite!'); res.redirect('/');}
 });
@@ -311,6 +363,6 @@ app.use(function(err, req, res, next) {
 });*/
 
 
-http.listen(5000, function(){
-    console.log('listening on *:4000');
+http.listen(8000, function(){
+    console.log('listening on *:8000');
 });
